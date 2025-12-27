@@ -47,23 +47,11 @@ I implemented a robust routing workflow handling three distinct scenarios:
 
 ### 1. The Main User Interface
 *The Streamlit chat interface showing the conversation history and AI responses.*
-![Streamlit UI](path/to/screenshot_ui.png)
+![Streamlit UI](images/ui.png)
 
 ### 2. n8n Workflow Overview
-*The complete logical flow: Webhook → Memory Retrieval → Classification → Routing → Tools → Memory Saving.*
-![n8n Workflow](path/to/screenshot_full_workflow.png)
-
-### 3. Branch: Order Status Execution
-*Shows the extraction of the ID and the successful tool call to `tools_service.py`.*
-![Order Status Branch](path/to/screenshot_order_branch.png)
-
-### 4. Branch: Product Issue Execution
-*Shows the system creating a support ticket and returning the Ticket ID.*
-![Product Issue Branch](path/to/screenshot_ticket_branch.png)
-
-### 5. Branch: FAQ & Escalation Execution
-*Shows the AI using context or escalating the issue.*
-![FAQ Branch](path/to/screenshot_faq_branch.png)
+*The complete logical flow: Webhook → Memory Retrieval → Classification → Routing → Tools → Memory Saving → response.*
+![n8n Workflow](images/workflow.png)
 
 ---
 
@@ -97,6 +85,11 @@ Hosted on Port `8501`.
 
 2.  **Start Python Services:**
     ```bash
+    # create venv and install dependencies
+    python -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+
     # Terminal 1
     python memory_service.py
 
@@ -106,11 +99,17 @@ Hosted on Port `8501`.
 
 3.  **Start n8n:**
     ```bash
-    n8n start
-    # Import the workflow.json and activate it.
+    docker run -it \
+    --name n8n \
+    -p 5678:5678 \
+    -v n8n_data:/home/node/.n8n \
+    n8nio/n8n
+
+    # Import the n8n-workflow.json and activate it.
     ```
 
 4.  **Launch UI:**
     ```bash
     streamlit run app.py
+    # NB: the UI uses the test URL of the webhook
     ```
