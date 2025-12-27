@@ -1,0 +1,853 @@
+{
+  "name": "lab",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "customer-message",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -176,
+        640
+      ],
+      "id": "bcaa36c2-bbfa-4f74-b187-cd2d9c854849",
+      "name": "Webhook",
+      "webhookId": "a1306bd6-b496-4165-8e8a-fae1928fa276"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Classify the user intent into:\nORDER_STATUS\nPRODUCT_ISSUE\nGENERAL_FAQ\nESCALATION\nReturn only the label with no spaces.\nUser message : '{{$node[\"Webhook\"].json[\"body\"][\"message\"]}}'. ",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.8,
+      "position": [
+        272,
+        640
+      ],
+      "id": "8c13f8e3-4e98-4c6f-b0b0-f3aeb58fccf2",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:1b",
+        "options": {
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        352,
+        864
+      ],
+      "id": "778edcac-494c-404b-a061-5ebe4205c0d8",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ndjSw5LVKZz22bgi",
+          "name": "Ollama account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.text}}",
+                    "rightValue": "ORDER_STATUS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "13b87911-dbee-4dd4-860c-edec2fa6872a"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "522f1aa1-b6be-4b72-a426-ee24f8e23dec",
+                    "leftValue": "={{$json.text}}",
+                    "rightValue": "PRODUCT_ISSUE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "8c1dea94-c858-4438-8a89-394b0b26a981",
+                    "leftValue": "={{$json.text}}",
+                    "rightValue": "GENERAL_FAQ",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c8c8bcdf-5343-4a1c-bb26-b3810b736541",
+                    "leftValue": "={{$json.text}}",
+                    "rightValue": "ESCALATION",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        608
+      ],
+      "id": "d68e61f8-dec0-4881-a5c2-50217c905245",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Extract the Order ID from the user message:\n\"{{ $('Webhook').item.json.body.message }}\"\n\nThe format is usually ORD-XXX.\n\nReturn ONLY the ID with no spaces.\nIf no ID is found, return NO_ID.\n",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.8,
+      "position": [
+        848,
+        32
+      ],
+      "id": "a5caa44e-eedf-4799-aea3-5de7dd007f2f",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "model": "gemma3:1b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        928,
+        256
+      ],
+      "id": "11f20013-61c5-41a8-9b50-6060f63fd503",
+      "name": "Ollama Chat Model1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ndjSw5LVKZz22bgi",
+          "name": "Ollama account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0968c117-7108-4551-8558-e73f3b412e31",
+              "name": "orderId",
+              "value": "={{ $json[\"text\"].trim() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1200,
+        32
+      ],
+      "id": "cbd51b00-9a2a-469b-bb39-62a437623f60",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bd45801d-4e49-4848-88ba-0aa16fba98a9",
+              "leftValue": "={{ $json.orderId }}",
+              "rightValue": "ORD-",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1424,
+        32
+      ],
+      "id": "4fbda2be-88aa-4289-b4c0-071637ad897f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "url": "=http://host.docker.internal:8002/order/{{ $json.orderId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1648,
+        -176
+      ],
+      "id": "a1103c97-6674-431c-84cc-d0d859e03435",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an ai agent\nThe user asked about order status.\nOrder Data: {{ $json }}\nUser Message: {{ $('Webhook').item.json.body.message }}\n\nWrite a helpful, professional response based on the Order data.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.8,
+      "position": [
+        1872,
+        -272
+      ],
+      "id": "7f93b0a0-6831-432e-a96c-c84d253fd786",
+      "name": "Basic LLM Chain2"
+    },
+    {
+      "parameters": {
+        "model": "gemma3:1b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1952,
+        -48
+      ],
+      "id": "15624691-2804-48fa-973d-fc063b22d4ca",
+      "name": "Ollama Chat Model2",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ndjSw5LVKZz22bgi",
+          "name": "Ollama account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $('Merge').item.json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        3024,
+        432
+      ],
+      "id": "e5036f37-6208-4a2f-b3d3-465590e1ed7c",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2224,
+        416
+      ],
+      "id": "1775e287-5cac-4b4c-9e7b-9db9f93e5645",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8001/query_memory",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"user_id\": \"{{$json.body.user_id}}\", \"query_text\": \"{{$json.body.message}}\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        48,
+        640
+      ],
+      "id": "b0f2c5ab-b738-4a7a-87ab-ac5872e10548",
+      "name": "Context"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an ai agent.\nIf Intent is ESCALATION, apologize and say a human will contact them.\nIf Intent is GENERAL_FAQ, answer the question based on the Context.\n\n- Context: {{ $('Context').item.json.relevant_context }}\n- Intent: {{ $('Switch').item.json.text }}\n- User Query: {{ $('Webhook').item.json.body.message }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.8,
+      "position": [
+        1872,
+        1040
+      ],
+      "id": "1b9b4ec0-ee26-4cf2-bafe-3c23b648160a",
+      "name": "Basic LLM Chain3"
+    },
+    {
+      "parameters": {
+        "model": "gemma3:1b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1952,
+        1264
+      ],
+      "id": "4ad8a109-1743-40a5-99f6-04bd3a49a70d",
+      "name": "Ollama Chat Model3",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ndjSw5LVKZz22bgi",
+          "name": "Ollama account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are an ai agent.\nThe user asked about an order but didn't provide an ID. Ask them politely to provide their Order ID (e.g., ORD-123).",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.8,
+      "position": [
+        1872,
+        128
+      ],
+      "id": "7d5a16b2-83b1-45fe-a6b3-865db61d338d",
+      "name": "Basic LLM Chain4"
+    },
+    {
+      "parameters": {
+        "model": "gemma3:1b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1952,
+        352
+      ],
+      "id": "07b1e7a1-1bf8-4ca2-aa98-e6877c89b6fa",
+      "name": "Ollama Chat Model4",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ndjSw5LVKZz22bgi",
+          "name": "Ollama account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=- User : \"{{ $('Webhook').item.json.body.message }}\"\n- AI: \"{{ $json.text }}\"",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an ai agent, try to summarize this conversation in one sentence."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.8,
+      "position": [
+        2448,
+        432
+      ],
+      "id": "08d0577c-16a9-4fbc-875a-40f08e0afb9f",
+      "name": "Summarizer"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8002/create_ticket",
+        "sendBody": true,
+        "specifyBody": "={\"description\": \"{{ $('Webhook').item.json.body.message }}\", \"user_id\": \"{{ $('Webhook').item.json.body.user_id }}\"}",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1648,
+        640
+      ],
+      "id": "f769e857-75bf-4795-844c-0490244bea48",
+      "name": "Create ticket"
+    },
+    {
+      "parameters": {
+        "model": "gemma3:1b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        2528,
+        656
+      ],
+      "id": "2a6b17d3-1c96-483d-bb05-5d65e65be1a3",
+      "name": "Ollama Chat Model5",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ndjSw5LVKZz22bgi",
+          "name": "Ollama account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Context : {{ $('Context').item.json.relevant_context }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "write the user a small message to let him know that your ticket about the product issue was created"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.8,
+      "position": [
+        1872,
+        528
+      ],
+      "id": "b12151a9-7ea3-422d-95b0-fc70fc984e27",
+      "name": "Basic LLM Chain5"
+    },
+    {
+      "parameters": {
+        "model": "gemma3:1b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1952,
+        752
+      ],
+      "id": "8557d526-efdb-4641-bbd9-fee3f76ec3b8",
+      "name": "Ollama Chat Model6",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ndjSw5LVKZz22bgi",
+          "name": "Ollama account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8001/add_memory",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "user_id",
+              "value": "={{$('Webhook').item.json.body.user_id}}"
+            },
+            {
+              "name": "=conversation_summary",
+              "value": "={{$json.text}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2800,
+        432
+      ],
+      "id": "43c124c8-5452-49b4-a3f0-b4df3d8ed33b",
+      "name": "Save Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create ticket",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Basic LLM Chain3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Basic LLM Chain3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Ollama Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Basic LLM Chain4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Summarizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Context": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain3": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain4",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain4": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarizer": {
+      "main": [
+        [
+          {
+            "node": "Save Memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create ticket": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarizer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model6": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain5",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain5": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Save Memory": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "a7c929e2-ee27-44ff-9962-a3096be9eb4c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a2a7ada512da229edb143be7dd1de141358484b955438a83554a30373c0b9620"
+  },
+  "id": "MC7ODVX4fFhqHCVw",
+  "tags": []
+}
