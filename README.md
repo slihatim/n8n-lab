@@ -99,11 +99,15 @@ Hosted on Port `8501`.
 
 3.  **Start n8n:**
     ```bash
-    docker run -it \
+    docker volume create n8n_data
+
+    docker run -d \
     --name n8n \
     -p 5678:5678 \
+    -e TZ="Africa/Casablanca" \
+    -e N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true \
     -v n8n_data:/home/node/.n8n \
-    n8nio/n8n
+    docker.n8n.io/n8nio/n8n:latest
 
     # Import the n8n-workflow.json and activate it.
     ```
@@ -111,5 +115,4 @@ Hosted on Port `8501`.
 4.  **Launch UI:**
     ```bash
     streamlit run app.py
-    # NB: the UI uses the test URL of the webhook
     ```

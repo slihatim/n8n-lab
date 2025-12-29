@@ -29,7 +29,7 @@ if prompt := st.chat_input("How can I help you today?"):
 
     # 2. Call n8n Webhook
     # REPLACE THIS URL with your actual n8n Webhook URL (Test or Production)
-    N8N_WEBHOOK_URL = "http://localhost:5678/webhook-test/customer-message"
+    N8N_WEBHOOK_URL = "http://localhost:5678/webhook/customer-message"
     
     with st.spinner("Agent is thinking..."):
         try:
